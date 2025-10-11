@@ -33,50 +33,6 @@ node ttstalk.js
 
 Masukkan username TikTok (tanpa @) saat diminta.
 
-### Mode Argumen
-
-Langsung stalk user dengan argumen username:
-
-```bash
-node ttstalk.js username_tiktok
-```
-
-Ganti `username_tiktok` dengan username yang ingin dicari.
-
-## Contoh Output
-
-```
-==================================================
-Tiktok Stalk CLI - Hasil Stalk
-==================================================
-Mencari data untuk: XXXXX
-==================================================
-ID: 123456789
-Short ID: 987654321
-Unique ID: XXXXX
-Nickname: XXXXX
-Signature: Welcome to my profile!
-Verified: Tidak
-Private Account: Tidak
-Region: undefined
-Language: en
-SecUid: XXXXXXXXXXXXX
-Avatar Larger: https://...
-Avatar Medium: https://...
-Avatar Thumb: https://...
-Create Time: 1/1/2020, 12:00:00 PM
-==================================================
-Stats:
-Follower Count: 10000
-Following Count: 100
-Heart: 50000
-Heart Count: 50000
-Video Count: 50
-Digg Count: 200
-Friend Count: 10
-==================================================
-```
-
 ## Catatan
 
 - Data Short ID bisa saja kosong jika TikTok tidak menampilkan field tersebut untuk user tertentu.
@@ -86,4 +42,5 @@ Friend Count: 10
 ## Lisensi
 
 Bebas digunakan untuk pembelajaran dan non-komersial.
+
 
