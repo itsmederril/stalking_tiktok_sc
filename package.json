@@ -1,0 +1,25 @@
+{
+  "name": "tiktok-stalker-cli",
+  "version": "1.0.0",
+  "description": "CLI tool untuk mengambil informasi publik pengguna TikTok melalui scraping halaman profil.",
+  "main": "stalk.js",
+  "scripts": {
+    "start": "node stalk.js",
+    "dev": "node stalk.js"
+  },
+  "keywords": [
+    "tiktok",
+    "scraper",
+    "cli",
+    "user-info",
+    "stalker"
+  ],
+  "author": "YanzXploit",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.12.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
