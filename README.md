@@ -1,4 +1,4 @@
-# Tiktok Stalk CLI
+# Stalking Tiktok CLI
 
 Aplikasi CLI sederhana untuk menampilkan detail profil pengguna TikTok berdasarkan username.
 
@@ -86,3 +86,4 @@ Friend Count: 10
 ## Lisensi
 
 Bebas digunakan untuk pembelajaran dan non-komersial.
+
