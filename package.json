@@ -1,26 +1,34 @@
 {
   "name": "tiktok-stalker-cli",
-  "version": "1.0.0",
-  "description": "CLI tool untuk mengambil informasi publik pengguna TikTok melalui scraping halaman profil.",
-  "main": "stalk.js",
+  "version": "2.0.0",
+  "description": "CLI tool canggih untuk mengambil informasi publik pengguna TikTok dengan fitur export, batch stalk, analytics, dan history management.",
+  "main": "ttstalk.js",
   "scripts": {
-    "start": "node stalk.js",
-    "dev": "node stalk.js"
+    "start": "node ttstalk.js",
+    "dev": "node ttstalk.js",
+    "help": "node ttstalk.js --help",
+    "version": "node ttstalk.js --version"
   },
   "keywords": [
     "tiktok",
     "scraper",
     "cli",
     "user-info",
-    "stalker"
+    "stalker",
+    "export",
+    "analytics",
+    "batch",
+    "history"
   ],
-  "author": "gimmesome_chips$1",
+  "author": "mr_d",
   "license": "MIT",
   "dependencies": {
     "axios": "^1.12.2"
   },
   "engines": {
     "node": ">=14.0.0"
+  },
+  "bin": {
+    "ttstalk": "./ttstalk.js"
   }
 }
-
