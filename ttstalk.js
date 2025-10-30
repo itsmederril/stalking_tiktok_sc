@@ -165,7 +165,7 @@ function saveToHistory(userData) {
   }
 }
 
-function showHistory() {
+function showHistory(filterQuery = null) {
   try {
     if (!fs.existsSync(HISTORY_FILE)) {
       console.log(`\x1b[33m[INFO]\x1b[0m Belum ada history stalk`);
@@ -173,7 +173,16 @@ function showHistory() {
     }
 
     const data = fs.readFileSync(HISTORY_FILE, "utf8");
-    const history = JSON.parse(data);
+    let history = JSON.parse(data);
+
+    if (filterQuery && filterQuery.trim()) {
+      const q = filterQuery.trim().toLowerCase();
+      history = history.filter(
+        (h) =>
+          (h.username && h.username.toLowerCase().includes(q)) ||
+          (h.nickname && String(h.nickname).toLowerCase().includes(q))
+      );
+    }
 
     console.log(
       `\x1b[36m[INFO]\x1b[0m History Stalk (${history.length} entri):`
@@ -209,8 +218,23 @@ function showHistory() {
   }
 }
 
+function clearHistory() {
+  try {
+    if (fs.existsSync(HISTORY_FILE)) {
+      fs.unlinkSync(HISTORY_FILE);
+      console.log("\x1b[32m[SUCCESS]\x1b[0m History berhasil dihapus");
+    } else {
+      console.log("\x1b[33m[INFO]\x1b[0m Tidak ada file history untuk dihapus");
+    }
+  } catch (error) {
+    console.log(
+      `\x1b[31m[ERROR]\x1b[0m Gagal menghapus history: ${error.message}`
+    );
+  }
+}
+
 // Fitur baru: Batch stalk multiple users
-async function batchStalk(usernames) {
+async function batchStalk(usernames, delayMs = 2000) {
   console.log(
     `\x1b[36m[INFO]\x1b[0m Memulai batch stalk untuk ${usernames.length} users...`
   );
@@ -232,7 +256,7 @@ async function batchStalk(usernames) {
 
     // Delay untuk menghindari rate limit
     if (i < usernames.length - 1) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, Number(delayMs)));
     }
   }
 
@@ -599,7 +623,11 @@ async function batchUserMode() {
   clearScreen();
   printHeader("Batch Stalk Results");
 
-  const results = await batchStalk(usernames);
+  const delayInput = await askQuestion(
+    "\x1b[37mDelay antar request (ms, default 2000): \x1b[0m"
+  );
+  const delayMs = Number(delayInput) > 0 ? Number(delayInput) : 2000;
+  const results = await batchStalk(usernames, delayMs);
 
   if (results.length > 0) {
     console.log(
@@ -752,7 +780,22 @@ async function main() {
         return;
 
       case "--history":
-        showHistory();
+        // dukung --history-search "query"
+        if (args[1] === "--history-search" && args[2]) {
+          showHistory(args.slice(2).join(" "));
+        } else {
+          showHistory();
+        }
+        rl.close();
+        return;
+
+      case "--history-search":
+        showHistory(args.slice(1).join(" "));
+        rl.close();
+        return;
+
+      case "--clear-history":
+        clearHistory();
         rl.close();
         return;
 
@@ -768,9 +811,16 @@ async function main() {
           .split(",")
           .map((u) => u.trim())
           .filter((u) => u);
+        // optional: --delay 3000
+        let delayMs = 2000;
+        const delayIdx = args.findIndex((a) => a === "--delay");
+        if (delayIdx !== -1 && args[delayIdx + 1]) {
+          const parsed = Number(args[delayIdx + 1]);
+          if (!Number.isNaN(parsed) && parsed > 0) delayMs = parsed;
+        }
         clearScreen();
         printHeader("Batch Stalk Results");
-        const results = await batchStalk(usernames);
+        const results = await batchStalk(usernames, delayMs);
         if (results.length > 0) {
           showAnalytics(results);
         }
@@ -789,6 +839,46 @@ async function main() {
 
         if (userData) {
           saveToHistory(userData);
+          // dukung flags: --export json|csv, --avatar, --output <dir>
+          const outIdx = args.findIndex((a) => a === "--output");
+          const outDir =
+            outIdx !== -1 && args[outIdx + 1] ? args[outIdx + 1] : null;
+          if (outDir) {
+            try {
+              if (!fs.existsSync(outDir))
+                fs.mkdirSync(outDir, { recursive: true });
+            } catch {}
+          }
+
+          const expIdx = args.findIndex((a) => a === "--export");
+          if (expIdx !== -1 && args[expIdx + 1]) {
+            const fmt = String(args[expIdx + 1]).toLowerCase();
+            if (fmt === "json") {
+              const fname = outDir
+                ? path.join(
+                    outDir,
+                    `tiktok_${userData.uniqueId}_${Date.now()}.json`
+                  )
+                : null;
+              exportToJSON(userData, fname);
+            } else if (fmt === "csv") {
+              const fname = outDir
+                ? path.join(
+                    outDir,
+                    `tiktok_${userData.uniqueId}_${Date.now()}.csv`
+                  )
+                : null;
+              exportToCSV(userData, fname);
+            }
+          }
+
+          if (args.includes("--avatar")) {
+            const avatarDir = outDir
+              ? path.join(outDir, "avatars")
+              : "./avatars";
+            await downloadAvatar(userData, avatarDir);
+          }
+
           await displayUserDetails(userData, false); // Tidak tampilkan opsi untuk mode argumen
         } else {
           console.log(
@@ -813,13 +903,17 @@ function showHelp() {
   console.log("   node ttstalk.js");
   console.log("");
   console.log("2. Stalk Single User:");
-  console.log("   node ttstalk.js username");
+  console.log(
+    "   node ttstalk.js username [--export json|csv] [--avatar] [--output ./dir]"
+  );
   console.log("");
   console.log("3. Batch Stalk Multiple Users:");
-  console.log("   node ttstalk.js --batch user1,user2,user3");
+  console.log("   node ttstalk.js --batch user1,user2,user3 [--delay 3000]");
   console.log("");
   console.log("4. Lihat History:");
-  console.log("   node ttstalk.js --history");
+  console.log(
+    '   node ttstalk.js --history | --history-search "query" | --clear-history'
+  );
   console.log("");
   console.log("5. Bantuan:");
   console.log("   node ttstalk.js --help");

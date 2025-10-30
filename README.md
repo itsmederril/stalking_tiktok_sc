@@ -57,19 +57,21 @@ Menu interaktif akan menampilkan:
 #### Stalk Single User
 
 ```bash
-node ttstalk.js username_tiktok
+node ttstalk.js username_tiktok [--export json|csv] [--avatar] [--output ./dir]
 ```
 
 #### Batch Stalk Multiple Users
 
 ```bash
-node ttstalk.js --batch user1,user2,user3
+node ttstalk.js --batch user1,user2,user3 [--delay 3000]
 ```
 
-#### Lihat History
+#### Lihat/Cari/Hapus History
 
 ```bash
 node ttstalk.js --history
+node ttstalk.js --history-search "kata kunci"
+node ttstalk.js --clear-history
 ```
 
 #### Bantuan
